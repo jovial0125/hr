@@ -1,229 +1,31 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>職場心理特質：MBTI x DiSC 終極分析報告</title>
+    <title>系統診斷中...</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
-        body { font-family: 'Noto Sans TC', sans-serif; }
-        .mbti-bar-transition { transition: width 1s ease-in-out; }
-    </style>
 </head>
-<body class="bg-slate-50">
-    <div id="root"></div>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div id="root">
+        <div class="text-center p-10 bg-white shadow-xl rounded-2xl border-4 border-red-500">
+            <h1 class="text-2xl font-black text-red-600">偵測到載入異常</h1>
+            <p class="mt-4">請確保下方腳本成功執行。</p>
+        </div>
+    </div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
-        const { ArrowRight, ChevronLeft, BarChart3, UserCheck, Brain, Target, AlertCircle, CheckCircle2, Download, RefreshCw, Zap, Award, Compass, ShieldAlert, Briefcase } = lucide;
-
-        // --- 完整資料庫：含萬字深度內容 ---
-        const mbtiDescriptions = {
-            INTJ: { title: '建築師', subtitle: '策略規劃者', desc: 'INTJ 是極度罕見的戰略家。您擁有強大的邏輯分析能力與長遠的眼光，總能看透事物的本質與長遠發展。', careers: '策略顧問、系統架構師、資料科學家。', strengths: '戰略思考、獨立作業', weaknesses: '對情緒不敏感、過於完美主義' },
-            INTP: { title: '邏輯學家', subtitle: '創新解題者', desc: '天生的理論家。您的思考追求邏輯的一致性，擅長解構複雜系統，找出其中的漏洞與規律。', careers: '軟體工程師、研究員、大學教授。', strengths: '邏輯嚴密、創新思維', weaknesses: '執行力較弱、厭惡例行公事' },
-            ENTJ: { title: '指揮官', subtitle: '果斷領導者', desc: '天生的領導者。您專注於效率與目標達成，能迅速在混亂中制定清晰的戰略並推動團隊。', careers: '企業高管、創業家、管理顧問。', strengths: '決策果斷、卓越領導力', weaknesses: '過於強勢、缺乏耐心' },
-            ENTP: { title: '辯論家', subtitle: '資源整合者', desc: '職場中的破局者。您思維敏捷，熱愛腦力激盪，擅長在變動中找到新商機。', careers: '行銷總監、產品經理、顧問。', strengths: '創意無限、說服力強', weaknesses: '容易分心、忽略細節' },
-            INFJ: { title: '提倡者', subtitle: '價值引導者', desc: '具備深刻洞察力與使命感。您致力於創造有意義的工作環境，是團隊的靈魂導師。', careers: '人資總監、心理諮商師、發展專家。', strengths: '深刻洞察、利他精神', weaknesses: '容易過勞、對批評敏感' },
-            INFP: { title: '調調者', subtitle: '靈感創造者', desc: '理想主義者。您的選擇必須符合內在價值觀，具備高度同理心與藝術敏銳度。', careers: '設計師、文案編輯、藝術家。', strengths: '同理心強、忠於自我', weaknesses: '在競爭中退縮、忽略現實數據' },
-            ENFJ: { title: '主人公', subtitle: '魅力啟發者', desc: '天生的教育家。您擅長激發他人潛能並凝聚團隊共識，是卓越的溝通者。', careers: '企業培訓講師、人資主管、教育家。', strengths: '啟發他人、凝聚力強', weaknesses: '承擔過多責任、不善處理冰冷數據' },
-            ENFP: { title: '競選者', subtitle: '創意推動者', desc: '職場中的陽光。您充滿好奇心與熱情，擅長建立連結並為團隊帶來活水。', careers: '品牌行銷、活動企劃、公關。', strengths: '熱情洋溢、人際技巧佳', weaknesses: '紀律不足、容易半途而廢' },
-            ISTJ: { title: '物流師', subtitle: '流程守護者', desc: '企業最堅實的骨幹。您重視責任與秩序，確保任務準確無誤地完成。', careers: '會計師、稽核主管、運營經理。', strengths: '高度負責、執行力強', weaknesses: '不喜變動、顯得死板' },
-            ISFJ: { title: '守衛者', subtitle: '組織後盾', desc: '細心負責。您默默支持團隊，記住所有人的需求，是維持組織穩定的關鍵。', careers: '行政總管、客戶成功、後勤。', strengths: '細心體貼、忠誠度高', weaknesses: '不懂拒絕、容易被忽略' },
-            ESTJ: { title: '總管', subtitle: '高效執行者', desc: '效率的化身。您崇尚秩序與事實，擅長建立 SOP 並推動團隊高效運作。', careers: '營運長、專案總監、財務經理。', strengths: '組織能力強、實用主義', weaknesses: '專斷獨裁、忽略人情味' },
-            ESFJ: { title: '執政官', subtitle: '協調者', desc: '社交大師。您將團隊視為家庭，擅長運用人際手腕化解衝突，建立和諧。', careers: '招募經理、公關總監、客服。', strengths: '交際手腕強、負責任', weaknesses: '太在意評價、難做冷酷決定' },
-            ISTP: { title: '鑑賞家', subtitle: '危機處理者', desc: '冷靜的實幹家。您動手能力強，能瞬間鎖定技術問題核心並解決危機。', careers: '資安工程師、系統分析、技師。', strengths: '冷靜除錯、技術力強', weaknesses: '缺乏溝通、缺乏長期規劃' },
-            ISFP: { title: '探險家', subtitle: '感受體驗者', desc: '溫和的美學實踐者。您重視當下的體驗與美感，是團隊中低調的創作者。', careers: '設計師、UX設計、美感服務。', strengths: '敏銳觀察力、隨和包容', weaknesses: '缺乏野心、害怕衝突' },
-            ESTP: { title: '企業家', subtitle: '行動先鋒', desc: '天生的談判者。您喜歡在挑戰中捕捉機會，是反應極快的行動派。', careers: '超級業務、開發總監、創業。', strengths: '反應敏捷、抗壓性強', weaknesses: '衝動行事、缺乏長遠戰略' },
-            ESFP: { title: '表演者', subtitle: '樂天派', desc: '聚光燈焦點。您充滿親和力，能迅速融化客戶防備，提升辦公室士氣。', careers: '活動公關、主持、銷售。', strengths: '社交魅力、實用主義', weaknesses: '分心、逃避衝突' }
-        };
-
-        const discDescriptions = {
-            D: { title: 'Dominance 掌控型', subtitle: '目標導向的老鷹', color: 'bg-red-600', textColor: 'text-red-600', desc: '您重視結果與效率，是天生的推動者。在危機中能迅速做出果斷決策。', careers: 'CEO、專案發起人、業務總監。', tips: '與您溝通應直接說重點與結果，避免廢話。' },
-            i: { title: 'Influence 影響型', subtitle: '熱情活潑的孔雀', color: 'bg-yellow-500', textColor: 'text-yellow-600', desc: '您重視人際互動與認同，是團隊的創意源與氣氛製造者。', careers: '培訓師、公關、行銷經理。', tips: '多給予讚美與認可，讓您有表達的舞台。' },
-            S: { title: 'Steadiness 穩定型', subtitle: '溫和可靠的無尾熊', color: 'bg-green-600', textColor: 'text-green-600', desc: '您重視和諧與穩定，是團隊最可靠的後盾與傾聽者。', careers: '人資主管、客服經理、行政支援。', tips: '溝通應溫和真誠，給予明確的安全感。' },
-            C: { title: 'Conscientiousness 分析型', subtitle: '嚴謹精確的貓頭鷹', color: 'bg-blue-600', textColor: 'text-blue-600', desc: '您重視精確與品質，是規則的守護者與數據分析專家。', careers: '分析師、稽核、軟體工程師。', tips: '提供詳細的邏輯證據與客觀數據。' }
-        };
-
-        // --- 主程式邏輯 ---
         function App() {
-            const [view, setView] = useState('home');
-            const [mbtiAns, setMbtiAns] = useState({});
-            const [mbtiRes, setMbtiRes] = useState('');
-            const [discAns, setDiscAns] = useState({});
-            const [discRes, setDiscRes] = useState('');
-
-            const isBothDone = mbtiRes !== '' && discRes !== '';
-
-            // 算分邏輯
-            const calcMbti = () => {
-                const s = { E:0, I:0, S:0, N:0, T:0, F:0, J:0, P:0 };
-                Object.values(mbtiAns).forEach(v => s[v]++);
-                const r = (s.E>=s.I?'E':'I')+(s.S>=s.N?'S':'N')+(s.T>=s.F?'T':'F')+(s.J>=s.P?'J':'P');
-                setMbtiRes(r); setView('combined');
-            };
-            const calcDisc = () => {
-                const s = { D:0, i:0, S:0, C:0 };
-                Object.values(discAns).forEach(v => s[v]++);
-                let maxK = 'D', maxV = -1;
-                for(let [k,v] of Object.entries(s)){ if(v > maxV){ maxV = v; maxK = k; } }
-                setDiscRes(maxK); setView('combined');
-            };
-
-            const downloadPDF = () => {
-                const element = document.getElementById('final-report');
-                const opt = { margin: 10, filename: `分析報告_${mbtiRes}_${discRes}.pdf`, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-                html2pdf().from(element).set(opt).save();
-            };
-
-            // 首頁
-            if (view === 'home') return (
-                <div className="max-w-4xl mx-auto p-10 pt-20">
-                    <h1 className="text-5xl font-black text-center mb-16 text-slate-800 tracking-tight">人才特質深度分析平台</h1>
-                    <div className="grid md:grid-cols-2 gap-10 mb-12">
-                        <div className="bg-white p-10 rounded-3xl shadow-xl border border-indigo-100 hover:shadow-2xl transition-all">
-                            <Brain className="w-16 h-16 text-indigo-600 mb-6" />
-                            <h2 className="text-3xl font-bold mb-4">MBTI 測驗</h2>
-                            <p className="text-slate-600 mb-8 h-20">解析內在心智認知偏好。</p>
-                            <button onClick={()=>setView('mbti')} className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg">{mbtiRes ? '重看結果' : '開始測驗'}</button>
-                        </div>
-                        <div className="bg-white p-10 rounded-3xl shadow-xl border border-teal-100 hover:shadow-2xl transition-all">
-                            <Target className="w-16 h-16 text-teal-600 mb-6" />
-                            <h2 className="text-3xl font-bold mb-4">DiSC 測驗</h2>
-                            <p className="text-slate-600 mb-8 h-20">解析外顯工作行為風格。</p>
-                            <button onClick={()=>setView('disc')} className="w-full py-4 bg-teal-600 text-white rounded-2xl font-black text-lg shadow-lg">{discRes ? '重看結果' : '開始測驗'}</button>
-                        </div>
-                    </div>
-                    <div className={`p-12 rounded-3xl text-center border-4 border-dashed transition-all ${isBothDone ? 'bg-orange-50 border-orange-400' : 'bg-slate-100 border-slate-200 grayscale'}`}>
-                        <Zap className="w-16 h-16 mx-auto text-orange-500 mb-6" />
-                        <h2 className="text-4xl font-black mb-6 text-orange-950">萬字級綜合深度報告</h2>
-                        <p className="mb-10 text-orange-800 font-medium">解鎖內在與外在特質的終極交叉解析。</p>
-                        <button disabled={!isBothDone} onClick={()=>setView('combined')} className={`px-16 py-5 rounded-full font-black text-2xl shadow-2xl transform hover:scale-105 transition-all ${isBothDone ? 'bg-orange-600 text-white' : 'bg-slate-300 text-slate-500 cursor-not-allowed'}`}>立即解鎖</button>
-                    </div>
+            return (
+                <div className="text-center p-12 bg-white shadow-2xl rounded-3xl border-4 border-green-500 animate-bounce">
+                    <h1 className="text-4xl font-black text-green-600">恭喜！系統框架已就緒</h1>
+                    <p className="mt-6 text-xl text-gray-600">如果您看到這行字，代表您的發布通道完全正常。</p>
+                    <p className="mt-2 text-gray-400">請在對話框告訴我「看到綠色框架」，我會給你分段式的完整代碼。</p>
                 </div>
             );
-
-            // 測驗畫面 (共用簡化模板)
-            const QuizView = ({ questions, ans, setAns, onDone, color }) => (
-                <div className="max-w-2xl mx-auto p-10">
-                    <button onClick={()=>setView('home')} className="mb-10 flex items-center text-slate-500 font-bold"><ChevronLeft className="mr-2"/> 返回首頁</button>
-                    {questions.map((q, idx) => (
-                        <div key={q.id} className="mb-12 bg-white p-8 rounded-3xl shadow-sm border">
-                            <p className="text-xl font-black mb-6 text-slate-800">{idx+1}. {q.text}</p>
-                            {q.options.map(o => (
-                                <label key={o.val} className={`block p-5 border-2 rounded-2xl mb-4 cursor-pointer transition-all ${ans[q.id] === o.val ? 'border-indigo-600 bg-indigo-50 shadow-inner' : 'border-slate-100 hover:border-slate-200'}`}>
-                                    <input type="radio" checked={ans[q.id] === o.val} onChange={()=>setAns({...ans, [q.id]: o.val})} className="mr-3 w-5 h-5" />
-                                    <span className="text-lg font-medium">{o.text}</span>
-                                </label>
-                            ))}
-                        </div>
-                    ))}
-                    <button onClick={onDone} disabled={Object.keys(ans).length < 12} className={`w-full py-5 rounded-2xl font-black text-2xl shadow-2xl ${color} text-white disabled:bg-slate-300 transition-all`}>完成測驗並分析</button>
-                </div>
-            );
-
-            if (view === 'mbti') return <QuizView questions={[
-                { id: 'q1', dim: 'EI', text: '關於社交：', options: [{ val: 'E', text: '喜歡互動充能' }, { val: 'I', text: '喜歡獨處充能' }] },
-                { id: 'q2', dim: 'EI', text: '專案會議時：', options: [{ val: 'E', text: '邊說邊想' }, { val: 'I', text: '想好再說' }] },
-                { id: 'q3', dim: 'EI', text: '下班後：', options: [{ val: 'E', text: '找朋友聚餐' }, { val: 'I', text: '待在家休息' }] },
-                { id: 'q4', dim: 'SN', text: '任務交辦：', options: [{ val: 'S', text: '需要明確步驟' }, { val: 'N', text: '了解方向即可' }] },
-                { id: 'q5', dim: 'SN', text: '看問題時：', options: [{ val: 'S', text: '注重現實經驗' }, { val: 'N', text: '看未來可能性' }] },
-                { id: 'q6', dim: 'SN', text: '處理數據：', options: [{ val: 'S', text: '檢查精確細節' }, { val: 'N', text: '看背後模式' }] },
-                { id: 'q7', dim: 'TF', text: '決策時：', options: [{ val: 'T', text: '依據邏輯對錯' }, { val: 'F', text: '依據人際和諧' }] },
-                { id: 'q8', dim: 'TF', text: '同事爭議時：', options: [{ val: 'T', text: '分析事理公平' }, { val: 'F', text: '關懷團隊感受' }] },
-                { id: 'q9', dim: 'TF', text: '給回饋時：', options: [{ val: 'T', text: '直接指出問題' }, { val: 'F', text: '顧慮對方自尊' }] },
-                { id: 'q10', dim: 'JP', text: '面對 Deadline：', options: [{ val: 'J', text: '提早規劃完成' }, { val: 'P', text: '最後衝刺爆發' }] },
-                { id: 'q11', dim: 'JP', text: '日常行程：', options: [{ val: 'J', text: '依清單執行' }, { val: 'P', text: '隨興調整' }] },
-                { id: 'q12', dim: 'JP', text: '辦公環境：', options: [{ val: 'J', text: '井然有序' }, { val: 'P', text: '自然混亂' }] }
-            ]} ans={mbtiAns} setAns={setMbtiAns} onDone={calcMbti} color="bg-indigo-600" />;
-
-            if (view === 'disc') return <QuizView questions={[
-                { id: 'd1', text: '工作核心：', options: [{ val: 'D', text: '達成目標結果' }, { val: 'i', text: '獲得眾人認同' }, { val: 'S', text: '穩定和諧運作' }, { val: 'C', text: '精確完美品質' }] },
-                { id: 'd2', text: '溝通風格：', options: [{ val: 'D', text: '直接說重點' }, { val: 'i', text: '生動且熱情' }, { val: 'S', text: '耐心且溫和' }, { val: 'C', text: '邏輯且嚴謹' }] },
-                { id: 'd3', text: '面對壓力：', options: [{ val: 'D', text: '強勢應對' }, { val: 'i', text: '情緒化逃避' }, { val: 'S', text: '猶豫不決' }, { val: 'C', text: '過度分析' }] },
-                { id: 'd4', text: '團隊會議：', options: [{ val: 'D', text: '主導決策' }, { val: 'i', text: '活躍氣氛' }, { val: 'S', text: '默默支持' }, { val: 'C', text: '質疑風險' }] },
-                { id: 'd5', text: '最不喜歡：', options: [{ val: 'D', text: '拖泥帶水' }, { val: 'i', text: '死板冷漠' }, { val: 'S', text: '惡性競爭' }, { val: 'C', text: '缺乏標準' }] },
-                { id: 'd6', text: '時間觀念：', options: [{ val: 'D', text: '速度第一' }, { val: 'i', text: '隨興愉快' }, { val: 'S', text: '穩定步調' }, { val: 'C', text: '品質優先' }] },
-                { id: 'd7', text: '成就來源：', options: [{ val: 'D', text: '掌控局勢' }, { val: 'i', text: '受人歡迎' }, { val: 'S', text: '長期關係' }, { val: 'C', text: '專業成就' }] },
-                { id: 'd8', text: '衝突處理：', options: [{ val: 'D', text: '直接爭論' }, { val: 'i', text: '幽默化解' }, { val: 'S', text: '避讓妥協' }, { val: 'C', text: '規則評判' }] },
-                { id: 'd9', text: '說服他人：', options: [{ val: 'D', text: '強調利益' }, { val: 'i', text: '描繪願景' }, { val: 'S', text: '強調安全' }, { val: 'C', text: '提供數據' }] },
-                { id: 'd10', text: '給建議時：', options: [{ val: 'D', text: '果斷直接' }, { val: 'i', text: '先褒後貶' }, { val: 'S', text: '委婉含蓄' }, { val: 'C', text: '條列分析' }] },
-                { id: 'd11', text: '做事細節：', options: [{ val: 'D', text: '抓大放小' }, { val: 'i', text: '容易忽略' }, { val: 'S', text: '謹慎執行' }, { val: 'C', text: '極度吹毛求疵' }] },
-                { id: 'd12', text: '工作環境：', options: [{ val: 'D', text: '充滿競爭' }, { val: 'i', text: '熱鬧好玩' }, { val: 'S', text: '和平互助' }, { val: 'C', text: '專業嚴謹' }] }
-            ]} ans={discAns} setAns={setDiscAns} onDone={calcDisc} color="bg-teal-600" />;
-
-            // 綜合報告
-            if (view === 'combined') return (
-                <div className="max-w-5xl mx-auto p-10 animate-fade-in pb-24">
-                    <div className="flex justify-between items-center mb-10">
-                        <button onClick={()=>setView('home')} className="flex items-center text-slate-500 font-bold"><ChevronLeft className="mr-2"/> 返回首頁</button>
-                        <button onClick={downloadPDF} className="bg-rose-600 text-white px-10 py-4 rounded-full font-black shadow-xl animate-pulse flex items-center">
-                            <Download className="mr-3"/> 匯出完整 PDF 報告
-                        </button>
-                    </div>
-
-                    <div id="final-report" className="bg-white rounded-3xl shadow-2xl overflow-hidden border">
-                        {/* Header */}
-                        <div className="bg-gradient-to-r from-slate-800 to-slate-900 text-white p-16 text-center">
-                            <h1 className="text-4xl font-black mb-4">職場潛能深度報告</h1>
-                            <div className="flex justify-center gap-10 mt-8">
-                                <div className="text-center">
-                                    <p className="text-slate-400 font-bold">MBTI 類型</p>
-                                    <p className="text-5xl font-black text-indigo-400">{mbtiRes}</p>
-                                </div>
-                                <div className="w-px bg-slate-700"></div>
-                                <div className="text-center">
-                                    <p className="text-slate-400 font-bold">DiSC 風格</p>
-                                    <p className="text-5xl font-black text-teal-400">{discRes}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="p-16 space-y-20">
-                            {/* MBTI Segment */}
-                            <section>
-                                <h2 className="text-3xl font-black text-indigo-700 mb-8 border-l-8 border-indigo-600 pl-6">內在認知分析：{mbtiRes} {mbtiDescriptions[mbtiRes]?.title}</h2>
-                                <p className="text-xl text-slate-700 leading-relaxed mb-8">{mbtiDescriptions[mbtiRes]?.desc}</p>
-                                <div className="grid md:grid-cols-2 gap-6 bg-indigo-50 p-8 rounded-3xl">
-                                    <div className="text-indigo-900"><strong>✨ 核心優勢：</strong><br/>{mbtiDescriptions[mbtiRes]?.strengths}</div>
-                                    <div className="text-rose-900"><strong>⚠️ 成長盲點：</strong><br/>{mbtiDescriptions[mbtiRes]?.weaknesses}</div>
-                                </div>
-                            </section>
-
-                            {/* DiSC Segment */}
-                            <section>
-                                <h2 className="text-3xl font-black text-teal-700 mb-8 border-l-8 border-teal-600 pl-6">外顯行為分析：Type {discRes} {discDescriptions[discRes]?.title}</h2>
-                                <div className="bg-slate-50 p-10 rounded-3xl mb-10 border">
-                                    <p className="text-2xl font-bold mb-4 text-slate-800">{discDescriptions[discRes]?.subtitle}</p>
-                                    <p className="text-xl text-slate-600 leading-relaxed">{discDescriptions[discRes]?.desc}</p>
-                                </div>
-                                <div className="bg-yellow-50 p-8 rounded-3xl border-2 border-yellow-200">
-                                    <h4 className="font-bold text-yellow-900 mb-4 flex items-center"><Compass className="mr-2"/> 職場溝通策略：</h4>
-                                    <p className="text-lg text-yellow-800">{discDescriptions[discRes]?.tips}</p>
-                                </div>
-                            </section>
-
-                            {/* Combined Segment */}
-                            <section className="bg-orange-50 p-12 rounded-3xl border-2 border-orange-200">
-                                <h2 className="text-4xl font-black text-orange-950 mb-8 flex items-center"><Zap className="mr-4 text-orange-500 w-12 h-12"/> 交叉解析：當 {mbtiRes} 遇上 {discRes}</h2>
-                                <div className="space-y-8 text-xl text-orange-900 leading-loose text-justify">
-                                    <p>這是一個極具競爭力的性格組合。在您的世界觀中，{mbtiRes} 提供了穩健的內在邏輯與遠見，而 {discRes} 則確保了這些想法能以最具效率的方式被執行。</p>
-                                    <p>您的職涯黃金地帶在於「高壓且需要快速變革」的環境。您能看穿複雜局勢，並果斷帶領團隊前進。建議在壓力下多留意同事的情感需求，能讓您的影響力更上一層樓。</p>
-                                </div>
-                            </section>
-                        </div>
-                    </div>
-                </div>
-            );
-
-            return null;
         }
-
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
