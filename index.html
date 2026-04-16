@@ -2,45 +2,13 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>職場心理測驗平台</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <title>測試頁面</title>
 </head>
-<body class="bg-gray-50">
-    <div id="root"></div>
-    <script type="text/babel">
-        const { useState } = React;
-        const { Brain, Target, Zap, ChevronLeft } = lucide;
-
-        function App() {
-            return (
-                <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
-                    <div className="bg-white p-12 rounded-3xl shadow-2xl border border-gray-100 max-w-lg">
-                        <div className="bg-green-100 text-green-700 px-4 py-2 rounded-full inline-block mb-6 font-bold">✓ 網站已成功連線</div>
-                        <h1 className="text-4xl font-black mb-6 text-gray-800">測驗平台</h1>
-                        <p className="text-gray-600 mb-8 text-lg">如果您看到這個畫面，代表您的 GitHub 設定完全正確！</p>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="p-8 border-2 rounded-2xl bg-indigo-50 border-indigo-100">
-                                <Brain className="mx-auto text-indigo-600 w-10 h-10 mb-2"/>
-                                <div className="font-bold">MBTI</div>
-                            </div>
-                            <div className="p-8 border-2 rounded-2xl bg-teal-50 border-teal-100">
-                                <Target className="mx-auto text-teal-600 w-10 h-10 mb-2"/>
-                                <div className="font-bold">DiSC</div>
-                            </div>
-                        </div>
-                        <button onClick={() => window.location.reload()} className="mt-10 w-full py-4 bg-gray-800 text-white rounded-2xl font-bold shadow-lg hover:bg-black transition-all">點此重新整理</button>
-                    </div>
-                </div>
-            );
-        }
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+<body style="background-color: #f0fdf4; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif;">
+    <div style="text-align: center; background: white; padding: 50px; border-radius: 20px; shadow: 0 10px 15px rgba(0,0,0,0.1); border: 2px solid #bbf7d0;">
+        <h1 style="color: #166534; font-size: 40px; margin-bottom: 20px;">✓ 恭喜！你看到這行字了</h1>
+        <p style="color: #374151; font-size: 20px;">這代表你的 GitHub 發布設定完全正常。</p>
+        <p style="color: #6b7280;">請在看到這行字後告訴我，我會給你最終的測驗程式碼。</p>
+    </div>
 </body>
 </html>
